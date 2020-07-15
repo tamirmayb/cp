@@ -22,8 +22,13 @@ services:
       - "5000:8080"
     links:
       - db
+    environment:
+      - PG_URL=user=docker password=docker sslmode=disable host=db
+      - APP_ENV=dev
 
   frontend:
+    environment:
+      - APP_ENV=dev
     build:
       context: ./frontend
       args:

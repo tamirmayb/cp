@@ -23,10 +23,10 @@ class ApplicationRow extends Component {
 
 ApplicationRow.propTypes = {
   application: PropTypes.shape({
+    ID: PropTypes.string.isRequired,
     Name: PropTypes.string.isRequired,
     Key: PropTypes.string.isRequired,
     Date: PropTypes.string.isRequired,
-    ID: PropTypes.string.isRequired,
   }),
   index: PropTypes.number.isRequired,
 };

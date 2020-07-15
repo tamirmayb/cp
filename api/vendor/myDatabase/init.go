@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"time"
+	"os"
 )
 
 var DB *gorm.DB
@@ -21,7 +22,7 @@ func addDatabase(dbname string) error {
 	DB.Exec("CREATE DATABASE " + dbname)
 
 	// connect to newly created DB (now has dbname param)
-	connectionParams := "dbname=" + dbname + " user=docker password=docker sslmode=disable host=db"
+	connectionParams := "dbname=" + dbname + " " + os.Getenv("PG_URL")
 	DB, err = gorm.Open("postgres", connectionParams)
 	if err != nil {
 		return err
@@ -32,7 +33,7 @@ func addDatabase(dbname string) error {
 
 func Init() (*gorm.DB, error) {
 	// set up DB connection and then attempt to connect 5 times over 25 seconds
-	connectionParams := "user=docker password=docker sslmode=disable host=db"
+	connectionParams := os.Getenv("PG_URL")
 	for i := 0; i < 5; i++ {
 		DB, err = gorm.Open("postgres", connectionParams) // gorm checks Ping on Open
 		if err == nil {
@@ -46,10 +47,9 @@ func Init() (*gorm.DB, error) {
 	}
 
 	// create table if it does not exist
-	//if !DB.HasTable(&Application{}) {
-		DB.DropTable(&Application{})
-	//}
-	DB.CreateTable(&Application{})
+	if !DB.HasTable(&Application{}) {
+		DB.CreateTable(&Application{})
+	}
 	
 	return DB, err
 }

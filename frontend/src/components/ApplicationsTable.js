@@ -8,8 +8,13 @@ class ApplicationsTable extends Component {
     this.state = { error: '' };
   }
 
-  makePostRows() {
+  makeApplicationRows() {
     const { applications } = this.props;
+    if(!applications) {
+      return (
+          <td colSpan={4}>Nothing to show</td>
+      )
+    }
     return applications.map((application, i) =>
       <ApplicationRow
         key={i}
@@ -32,7 +37,7 @@ class ApplicationsTable extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.makePostRows()}
+            {this.makeApplicationRows()}
           </tbody>
         </Table>
       </div>

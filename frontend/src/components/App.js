@@ -21,19 +21,24 @@ class App extends Component {
     this.getApplications();
   }
 
+  // Due to new cors restrictions it's not possible to send Cookie, I'm using Authorization header which contains the
+  // cookie's data instead. If the Authorization is missing or not equal the request will fail (405)
   getApplications() {
-    axios.get(`${Urls.api}/list`)
-      .then((res) => {
-        this.setState({ applications: res.data });
-      },
-    )
-      .catch(() => {
-        this.setState({ errors: ['Backend API connection error'] });
-      },
-    );
+    axios.get(`${Urls.api}/list`, {withCredentials: true, crossDomain: true,
+      headers:{
+        Authorization: "CHECKPOINTID=let-me-pass"
+      }})
+        .then((res) => {
+              this.setState({ applications: res.data });
+            },
+        )
+        .catch(() => {
+              this.setState({ errors: ['Backend API connection error'] });
+            },
+        );
   }
 
-  // only adds to frontend not DB
+  // only adds to frontend not DB todo check this!!
   addPost(post) {
     const { posts } = this.state;
     posts.push(post);
@@ -60,15 +65,15 @@ class App extends Component {
     };
 
     return (
-      <div>
-        <TopNavbar />
-        <Panel style={panelStyle} bsStyle="primary">
-          <h3>Applications Table</h3>
-          <ApplicationsTable applications={ applications } />
-          <h5>Create application</h5>
-          <CreateApplication />
-        </Panel>
-      </div>
+        <div>
+          <TopNavbar />
+          <Panel style={panelStyle} bsStyle="primary">
+            <h3>Applications Table</h3>
+            <ApplicationsTable applications={ applications } />
+            <h5>Create application</h5>
+            <CreateApplication />
+          </Panel>
+        </div>
     );
   }
 }

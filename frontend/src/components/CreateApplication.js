@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Button, FormGroup, ControlLabel, FormControl } from 'react-bootstrap/lib';
 import Urls from '../util/Urls.js';
 
+//todo complete isLoading and errors
+
 class CreateApplication extends Component {
   constructor(props) {
     super(props);
@@ -28,6 +30,8 @@ class CreateApplication extends Component {
     return errors;
   }
 
+  // Due to new cors restrictions it's not possible to send Cookie, I'm using Authorization header which contains the
+  // cookie's data instead. If the Authorization is missing or not equal the request will fail (405)
   createApplication() {
     const { name, key } = this.state;
     this.setState({ isLoading: true, errors: [] });
@@ -36,7 +40,12 @@ class CreateApplication extends Component {
       axios.post(`${Urls.api}/add`, {
         Name: name,
         Key: key,
-      })
+      }, {
+          withCredentials: true,
+          crossDomain: true,
+            headers:{
+              Authorization: "CHECKPOINTID=let-me-pass"
+        }})
           .then((res) => {
                 // this.props.addApp(res.data);
                 this.setState({ isLoading: false, name: '', key: '', errors: [] });

@@ -33,7 +33,7 @@ func getEncryptedId() []byte {
 		log.Fatal(err)
 	}
 
-	//generate uuid, check if can be created with api
+	//generate uuid, check if can be created with api (so far found api's that don't work)
 	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 	return encrypt([]byte(uuid), "password")
 }
@@ -45,6 +45,15 @@ func getDecryptedId(id []byte) string {
 // CRUD Route Handlers
 func createApplicationHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	setCors(w)
+
+	// Due to new cors restrictions it's not possible to send Cookie, I'm using Authorization header which contains the
+	// cookie's data instead. If the Authorization is missing or not equal the request will fail (405)
+	auth := r.Header.Get("Authorization")
+	if auth != "CHECKPOINTID=let-me-pass" {
+		http.Error(w, "Invalid CHECKPOINTID Authorization", 401)
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	var newApp database.Application
 	newApp.ID = getEncryptedId()
@@ -66,6 +75,15 @@ func createApplicationHandler(w http.ResponseWriter, r *http.Request, _ httprout
 
 func listApplicationsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	setCors(w)
+
+	// Due to new cors restrictions it's not possible to send Cookie, I'm using Authorization header which contains the
+	// cookie's data instead. If the Authorization is missing or not equal the request will fail (405)
+	auth := r.Header.Get("Authorization")
+	if auth != "CHECKPOINTID=let-me-pass" {
+		http.Error(w, "Invalid CHECKPOINTID Authorization", 401)
+		return
+	}
+
 	var applications []database.Application
 	database.DB.Order("name").Find(&applications)
 	res, err := json.Marshal(formatApps(applications))
@@ -80,7 +98,6 @@ func listApplicationsHandler(w http.ResponseWriter, r *http.Request, _ httproute
 func formatApps(applications []database.Application) []ApplicationDecrypted {
 	var results []ApplicationDecrypted
 	for _, app := range applications {
-		log.Print(app.Date)
 		formattedDate := time.Unix(app.Date/1000, 0).Format("2006-01-02 15:04:05")
 		results = append(results, ApplicationDecrypted{getDecryptedId(app.ID), app.Name, app.Key, formattedDate})
 	}
@@ -107,7 +124,8 @@ func setCors(w http.ResponseWriter) {
 	frontendUrl := getFrontendUrl()
 	w.Header().Set("Access-Control-Allow-Origin", frontendUrl)
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 }
 
 func createHash(key string) string {
@@ -176,9 +194,9 @@ func main() {
 		log.Println("Running api server in dev mode")
 	}
 
-	currTime := time.Now().UnixNano() / 1000000
-	testPost := database.Application{ID: getEncryptedId(), Name: "AAA", Key: "key ket", Date: currTime}
-	database.DB.Create(&testPost)
+	//currTime := time.Now().UnixNano() / 1000000
+	//testPost := database.Application{ID: getEncryptedId(), Name: "AAA", Key: "key ket", Date: currTime}
+	//database.DB.Create(&testPost)
 
 	http.ListenAndServe(":8080", router)
 }
