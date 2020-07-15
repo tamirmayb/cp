@@ -10,11 +10,10 @@ var DB *gorm.DB
 var err error
 
 type Application struct {
-	//gorm.Model
-	ID  string
+	ID  []byte
 	Name string
 	Key string
-	Date string
+	Date int64
 }
 
 func addDatabase(dbname string) error {
@@ -47,12 +46,10 @@ func Init() (*gorm.DB, error) {
 	}
 
 	// create table if it does not exist
-	if !DB.HasTable(&Application{}) {
-		DB.CreateTable(&Application{})
-	}
-
-	testPost := Application{ID: "1", Name: "Dorper", Key: "key ket", Date: "2020-02-02"}
-	DB.Create(&testPost)
+	//if !DB.HasTable(&Application{}) {
+		DB.DropTable(&Application{})
+	//}
+	DB.CreateTable(&Application{})
 	
 	return DB, err
 }

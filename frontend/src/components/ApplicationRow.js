@@ -1,6 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import axios from 'axios';
-import Urls from '../util/Urls.js';
 
 class ApplicationRow extends Component {
   constructor(props) {
@@ -8,25 +6,6 @@ class ApplicationRow extends Component {
     this.state = {
       errors: [],
     };
-  }
-
-  deletePost() {
-    const { removePost, index, application, addError, clearErrors } = this.props;
-    clearErrors();
-    this.setState({
-      isEditDisabled: true,
-      isDeleteLoading: true,
-      isDeleteDisabled: false,
-    });
-    axios.delete(`${Urls.api}/posts/${application.ID}`)
-      .then(() => {
-        removePost(index);
-      },
-    )
-      .catch((err) => {
-        addError(err.message);
-      },
-    );
   }
 
   render() {

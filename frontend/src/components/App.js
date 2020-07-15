@@ -4,7 +4,7 @@ import { Panel } from 'react-bootstrap/lib';
 import Style from '../util/Style.js';
 import Urls from '../util/Urls.js';
 import ApplicationsTable from './ApplicationsTable.js';
-import CreatePostButton from './CreatePostButton.js';
+import CreateApplication from './CreateApplication.js';
 import TopNavbar from './TopNavbar.js';
 
 class App extends Component {
@@ -63,9 +63,10 @@ class App extends Component {
       <div>
         <TopNavbar />
         <Panel style={panelStyle} bsStyle="primary">
-          <h2>Applications Table</h2>
-          <CreatePostButton addPost={this.addPost.bind(this)} />
+          <h3>Applications Table</h3>
           <ApplicationsTable applications={ applications } />
+          <h5>Create application</h5>
+          <CreateApplication />
         </Panel>
       </div>
     );
